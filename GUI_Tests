@@ -1,0 +1,83 @@
+import unittest
+
+import GUI.GUI
+from PyQt6 import *
+from GUI import GUI as gui
+from TaskGeneration import TaskGeneration as tg
+import datetime
+
+class GUITest(unittest.TestCase):
+    def initialise_GUI(self):
+        self.app = PyQt6.QtWidgets.QApplication([])
+        self.window = gui.MainWindow()
+        self.window.show()
+
+    def initialise_globals(self):
+        self.task_dict = {}
+        self.today = datetime.datetime.now()
+
+    def taskinput_known_values_test(self, known_task: str, correct_date: str):
+        taskinput = self.window.input
+        verify_task_box = self.window.findChild(name='TaskBox')
+
+        taskinput.inputfield.setText(known_task)
+        taskinput.datefield.setText(correct_date)
+
+        taskinput.input_task()
+        taskinput.input_date()
+
+        self.assertTrue(verify_task_box != none)
+        self.assertTrue(verify_task_box.checkbox.text() == known_task)
+
+    def taskinput_new_values_test(self, unknown_task: str, correct_date: str, new_priority_pl:str, new_et_pl: str,
+                                  unknow_priority_val: str, unkown_energy_type: str, new_eq_pl: str,
+                                  unknown_energy_quant: str):
+
+        taskinput = self.window.input
+
+        taskinput.inputfield.setText(unknown_task)
+        taskinput.datefield.setText(correct_date)
+
+        taskinput.input_task()
+        taskinput.input_date()
+
+        self.assertTrue(taskinput.inputfield.placeholderText() == new_priority_pl)
+        self.assertTrue(taskinput.inputfield.placeholderText() == new_et_pl)
+
+        taskinput.inputfield.setText(unknow_priority_val)
+        taskinput.datefield.setText(unkown_energy_type)
+
+        taskinput.new_task_input()
+
+        self.assertTrue(taskinput.inputfield.placeholderText() == new_eq_pl)
+
+        taskinput.inputfield.setText(unknown_energy_quant)
+
+        taskinput.new_task_input_2()
+
+        self.assertTrue(verify_task_box != none)
+        self.assertTrue(verify_task_box.checkbox.text() == unknown_task)
+
+    def taskbox_creation_test(self, known_task1: str, known_task2: str, known_task3: str, dl_1: str, dl_2: str,
+                              dl_3: str):
+
+        def convert_to_urgency(string: str):
+            urgency = datetime.datetime(int(string.split()[2]),
+                                             int(string.split()[1]),
+                                             int(string.split()[0]), 0, 0, 0)
+
+            urgency -= self.today
+            urgency = datetime.timedelta.total_seconds(self.urgency) / 3600
+            return urgency
+
+
+        tg.Task(known_task1, convert_to_urgency(dl_1) , self.task_dict)
+        tg.Task(known_task2, convert_to_urgency(dl_2), self.task_dict)
+        tg.Task(known_task3, convert_to_urgency(dl_3) , self.task_dict)
+        GUI.GUI.task_display(self.task_dict)
+
+        self.assertTrue(filter(lambda x: x.text() == known_task1, self.window.children()))
+        self.assertTrue(filter(lambda x: x.text() == known_task3, self.window.children()))
+
+        for obj in self.window.children():
+            self.assertIsInstance(obj, GUI.GUI.TaskBox)

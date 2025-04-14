@@ -2,12 +2,6 @@ import sqlite3
 from datetime import *
 from EnergiesManagement import EnergyManager as em
 import TaskSorting as ts
-connection = sqlite3.connect("EH2Tasks")
-cursor = connection.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS Energies (TaskName TEXT, Mental INTEGER, Physical INTEGER);')
-connection.commit()
-cursor.execute('INSERT INTO Energies (TaskName, Mental, Physical) VALUES ("Python", 50, 0)')
-connection.commit()
 
 test_dict = {}
 
@@ -15,6 +9,7 @@ class Task:
     def __init__(self, priority, urgency, dictionary):
         connection = sqlite3.connect("EH2Tasks")
         cursor = connection.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS Energies (TaskName TEXT, Mental INTEGER, Physical INTEGER);')
         cursor.execute('CREATE TABLE IF NOT EXISTS Tasks (TaskName TEXT, TaskDL TEXT);')
         connection.commit()
         self.urgency = urgency
